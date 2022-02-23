@@ -12,9 +12,5 @@ export const loader: LoaderFunction = async ({ params }) => {
 
 export default function PostSlug(): JSX.Element {
   const post = useLoaderData<Post>();
-  return (
-    <div>
-      <h1>Some Post: {post.title}</h1>
-    </div>
-  );
+  return <div dangerouslySetInnerHTML={{ __html: post.html as string }} />;
 }
