@@ -27,3 +27,11 @@ export async function getPosts(): Promise<Post[]> {
     return { slug: filename.replace(/\.md$/, ''), title: attr.title };
   }));
 }
+
+export async function getPost(slug: string): Promise<Post> {
+  const filepath = path.join(postsPath, `${slug}.md`);
+  const file = await fs.readFile(filepath);
+  const { attributes: attr } = parseFrontMatter(file.toString());
+  invariant(isPostAttributes(attr), `Post ${filepath} is missing attributes.`);
+  return { slug, title: attr.title };
+}
