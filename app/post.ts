@@ -8,6 +8,7 @@ export interface Post {
   slug: string;
   title: string;
   html?: string;
+  markdown?: string;
 }
 
 const postsPath = path.join(__dirname, '..', 'posts');
@@ -32,8 +33,14 @@ export async function getPosts(): Promise<Post[]> {
 
 export async function getPost(slug: string): Promise<Post> {
   const filepath = path.join(postsPath, `${slug}.md`);
-  const file = await fs.readFile(filepath);
-  const { attributes: attr, body} = parseFrontMatter(file.toString());
+  const markdown = (await fs.readFile(filepath)).toString();
+  const { attributes: attr, body } = parseFrontMatter(markdown);
   invariant(isPostAttributes(attr), `Post ${filepath} is missing attributes.`);
-  return { slug, html: marked(body), title: attr.title };
+  return { slug, markdown, html: marked(body), title: attr.title };
+}
+
+export async function putPost(post: Post): Promise<Post> {
+  const md = `---\ntitle: ${post.title}\n---\n\n${post.markdown}`;
+  await fs.writeFile(path.join(postsPath, `${post.slug}.md`), md);
+  return getPost(post.slug);
 }
